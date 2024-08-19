@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-queue-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: email-queue-app
+  template:
+    metadata:
+      labels:
+        app: email-queue-app
+    spec:
+      containers:
+      - name: email-queue-container
+        image: email-queue:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        env:
+        - name: DB_HOST
+          value: "mariadb"
+        - name: DB_USER
+          value: "root"
+        - name: DB_PASSWORD
+          value: "password"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-queue-service
+spec:
+  selector:
+    app: email-queue-app
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
